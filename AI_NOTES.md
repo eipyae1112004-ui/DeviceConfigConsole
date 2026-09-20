@@ -11,12 +11,14 @@
 - Started learning C# only two days before this task, so most of the explanations were genuinely new to me, not a refresher.
 
 **2. One thing it got wrong, and how I noticed**
-- Claude had me test the "database unreachable" case by pointing the connection string at a fake SQL Server instance.
-- It gave me that test before having me also test the "device ID doesn't exist" case.
-- I ran `dotnet run -- 999` expecting the "no device found" message, but got a database connection error instead.
-- I noticed because the output didn't match what we'd just discussed the code should do.
-- The code itself was correct — the mistake was the order of the tests, since the connection was still broken from the previous step.
-- Fixed by reverting the connection string, re-confirming the earlier tests passed, then re-breaking it only for the actual unreachable-database test at the end.
+
+One specific mistake, walked through as it happened:
+
+1. Claude had me test the "database unreachable" case by pointing the connection string at a fake SQL Server instance — but gave me that test *before* also having me test the "device ID doesn't exist" case.
+2. I ran `dotnet run -- 999` expecting the "no device found" message, but got a database connection error instead.
+3. I noticed because the output didn't match what we'd just discussed the code should do.
+4. It turned out the code itself was correct — the mistake was the *order* of the tests, since the connection was still broken from the previous step.
+5. Fixed by reverting the connection string, re-confirming the earlier tests passed, then re-breaking it only for the actual unreachable-database test at the end.
 
 **3. What I changed myself**
 - Added a column-aligned table output (beyond the original pipe-separated version).
