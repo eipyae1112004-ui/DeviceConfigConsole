@@ -63,7 +63,18 @@ try
         CheckForWarnings(reader, warnings);
     }
 
-    int maxAllowedWidth = Math.Min(30, Console.WindowWidth > 0 ? Console.WindowWidth - 10 : 30);
+    int maxAllowedWidth = 30;
+    try
+    {
+        if (Console.WindowWidth > 0)
+        {
+            maxAllowedWidth = Math.Min(30, Console.WindowWidth - 10);
+        }
+    }
+    catch (IOException)
+    {
+        // No console window attached (e.g. output redirected) — keep the default width.
+    }
 
     // Calculate maximum column widths
     int[] colWidths = new int[headers.Length];

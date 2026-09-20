@@ -1,4 +1,4 @@
-# ICAS-DeviceCfg
+# DeviceConfigConsole
 
 A C# console application that reads warehouse device configuration from SQL Server
 (`dbo.t_DeviceCfg`), prints it as a table, and can look up a single device by ID.
@@ -22,7 +22,8 @@ This should list `MSSQLLocalDB`.
 
 ## 1. Create the database
 
-Run the supplied `01-setup.sql` once, from a terminal in this folder, using `sqlcmd`:
+This project expects the `01-setup.sql` script provided separately with the task to
+have been run once against LocalDB:
 
 ```
 sqlcmd -S "(localdb)\MSSQLLocalDB" -i "01-setup.sql"
@@ -59,7 +60,7 @@ dotnet run -- 3
 
 (The `--` tells `dotnet run` that what follows is an argument for the app, not for
 `dotnet` itself. If you build and run the standalone executable instead, pass the
-argument directly, e.g. `ICAS-DeviceCfg.exe 3`.)
+argument directly, e.g. `DeviceConfigConsole.exe 3`.)
 
 ## What it does when things aren't right
 
