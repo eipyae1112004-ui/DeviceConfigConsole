@@ -63,6 +63,8 @@ try
         CheckForWarnings(reader, warnings);
     }
 
+    int maxAllowedWidth = Math.Min(30, Console.WindowWidth > 0 ? Console.WindowWidth - 10 : 30);
+
     // Calculate maximum column widths
     int[] colWidths = new int[headers.Length];
     for (int i = 0; i < headers.Length; i++)
@@ -79,6 +81,11 @@ try
                 colWidths[i] = row[i].Length;
             }
         }
+    }
+    // Apply safety cap for narrow terminals
+    for (int i = 0; i < colWidths.Length; i++)
+    {
+        colWidths[i] = Math.Min(colWidths[i], maxAllowedWidth);
     }
 
     // Print table
@@ -125,7 +132,16 @@ static void PrintRowFormatted(string[] values, int[] colWidths)
     var padded = new string[values.Length];
     for (int i = 0; i < values.Length; i++)
     {
-        padded[i] = values[i].PadRight(colWidths[i]);
+        string val = values[i];
+        
+        // Handle truncation for narrow terminals if text is too long
+        if (val.Length > colWidths[i])
+        {
+            val = colWidths[i] <= 3 
+                ? val.Substring(0, colWidths[i]) 
+                : val.Substring(0, colWidths[i] - 3) + "...";
+        }
+        padded[i] = val.PadRight(colWidths[i]);
     }
     Console.WriteLine(string.Join(" | ", padded));
 }
