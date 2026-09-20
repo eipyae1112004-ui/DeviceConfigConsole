@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ICAS-DeviceCfg")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b186c7bd24afdd900a170f8a8ea29adba9f5e12f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+643a12a2fbba0f36ab3a8b0b479780358804f0c0")]
 [assembly: System.Reflection.AssemblyProductAttribute("ICAS-DeviceCfg")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ICAS-DeviceCfg")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

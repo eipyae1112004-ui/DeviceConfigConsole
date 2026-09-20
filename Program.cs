@@ -5,7 +5,19 @@ const string ConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=ICAS_Te
 using var connection = new SqlConnection(ConnectionString);
 connection.Open();
 
-using var command = new SqlCommand("SELECT * FROM dbo.t_DeviceCfg", connection);
+string sql = "SELECT * FROM dbo.t_DeviceCfg";
+int? equipId = args.Length > 0 ? int.Parse(args[0]) : null;
+if (equipId.HasValue)
+{
+    sql += " WHERE EquipId = @EquipId";
+}
+
+using var command = new SqlCommand(sql, connection);
+if (equipId.HasValue)
+{
+    command.Parameters.AddWithValue("@EquipId", equipId.Value);
+}
+
 using var reader = command.ExecuteReader();
 
 PrintHeader(reader);
