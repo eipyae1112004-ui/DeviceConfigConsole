@@ -42,13 +42,47 @@ try
         return 1;
     }
 
-    PrintHeader(reader);
+    // AFTER: Extract headers
+    var headers = new string[reader.FieldCount];
+    for (int i = 0; i < reader.FieldCount; i++)
+    {
+        headers[i] = reader.GetName(i);
+    }
+
+    var rows = new List<string[]>();
     var warnings = new List<string>();
+
     while (reader.Read())
     {
-        PrintRow(reader);
+        var values = new string[reader.FieldCount];
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            values[i] = reader.IsDBNull(i) ? "NULL" : reader.GetValue(i).ToString() ?? "";
+        }
+        rows.Add(values);
         CheckForWarnings(reader, warnings);
     }
+
+    // Calculate maximum column widths
+    int[] colWidths = new int[headers.Length];
+    for (int i = 0; i < headers.Length; i++)
+    {
+        colWidths[i] = headers[i].Length;
+    }
+
+    foreach (var row in rows)
+    {
+        for (int i = 0; i < row.Length; i++)
+        {
+            if (row[i].Length > colWidths[i])
+            {
+                colWidths[i] = row[i].Length;
+            }
+        }
+    }
+
+    // Print table
+    PrintAlignedTable(headers, rows, colWidths);
 
     if (warnings.Count > 0)
     {
@@ -69,24 +103,31 @@ catch (SqlException ex)
 
 return 0;
 
-static void PrintHeader(SqlDataReader reader)
+static void PrintAlignedTable(string[] headers, List<string[]> rows, int[] colWidths)
 {
-    var headers = new string[reader.FieldCount];
-    for (int i = 0; i < reader.FieldCount; i++)
+    PrintRowFormatted(headers, colWidths);
+
+    var separator = new string[headers.Length];
+    for (int i = 0; i < headers.Length; i++)
     {
-        headers[i] = reader.GetName(i);
+        separator[i] = new string('-', colWidths[i]);
     }
-    Console.WriteLine(string.Join(" | ", headers));
+    Console.WriteLine(string.Join("-+-", separator));
+
+    foreach (var row in rows)
+    {
+        PrintRowFormatted(row, colWidths);
+    }
 }
 
-static void PrintRow(SqlDataReader reader)
+static void PrintRowFormatted(string[] values, int[] colWidths)
 {
-    var values = new string[reader.FieldCount];
-    for (int i = 0; i < reader.FieldCount; i++)
+    var padded = new string[values.Length];
+    for (int i = 0; i < values.Length; i++)
     {
-        values[i] = reader.IsDBNull(i) ? "NULL" : reader.GetValue(i).ToString() ?? "";
+        padded[i] = values[i].PadRight(colWidths[i]);
     }
-    Console.WriteLine(string.Join(" | ", values));
+    Console.WriteLine(string.Join(" | ", padded));
 }
 
 // 3. Flag rows whose data doesn't make sense, without aborting the rest of the listing.
@@ -96,10 +137,15 @@ static void CheckForWarnings(SqlDataReader reader, List<string> warnings)
     string equipName = reader.GetString(reader.GetOrdinal("EquipName"));
     short enable = reader.GetInt16(reader.GetOrdinal("Enable"));
     bool ipIsNull = reader.IsDBNull(reader.GetOrdinal("IpAddress"));
-
     if (enable != 0 && ipIsNull)
     {
         warnings.Add($"EquipId {equipId} ({equipName}) is enabled but has no IP address — it cannot be reached on the network.");
+    }
+
+    bool triggerIsNull = reader.IsDBNull(reader.GetOrdinal("Trigger"));
+    if (enable != 0 && triggerIsNull)
+    {
+        warnings.Add($"EquipId {equipId} ({equipName}) is enabled but has no Trigger mode — the program doesn't know when to read it.");
     }
 
     int slotOrdinal = reader.GetOrdinal("SlotIndex");
